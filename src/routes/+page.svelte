@@ -9,9 +9,9 @@
   let selectedEmoji = $state<string | null>(null)
 </script>
 
-<div style="display: flex; gap: 1rem; align-items: flex-start;">
+<div id="peefest-container">
   <Grid {emojis} {selectedEmoji} />
-  <div style="flex-shrink: 0;">
+  <div id="emojipicker-container">
     <EmojiPicker {emojis} bind:selectedEmoji />
   </div>
 </div>
@@ -21,5 +21,17 @@
 
   :global(body) {
     font-family: 'Lato', sans-serif;
+  }
+
+  @media screen and (min-width: 840px) {
+    #peefest-container {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    #emojipicker-container {
+      flex-shrink: 0;
+    }
   }
 </style>
