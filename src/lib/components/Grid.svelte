@@ -3,7 +3,10 @@
   const WIDTH = 20
   const HEIGHT = 20
 
-  const { emojis }: { emojis: Record<string, string> } = $props()
+  const {
+    emojis,
+    selectedEmoji,
+  }: { emojis: Record<string, string>; selectedEmoji: string | null } = $props()
 
   // Svelte 5 runes API ($state, $effect)
   let grid = $state<string[][]>(
@@ -11,7 +14,9 @@
       Array.from({ length: WIDTH }, () => '')
     )
   )
-  let status = $state<'connecting' | 'connected' | 'closed' | 'error'>('connecting')
+  let status = $state<'connecting' | 'connected' | 'closed' | 'error'>(
+    'connecting'
+  )
   let lastEvent = $state<string>('')
   let errorMessage = $state<string | null>(null)
   let ws: WebSocket | null = null
@@ -48,7 +53,7 @@
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:'
     const url = `${proto}//${location.host}/api/grid/ws`
     ws = new WebSocket(url)
-  ws.addEventListener('open', () => (status = 'connected'))
+    ws.addEventListener('open', () => (status = 'connected'))
     ws.addEventListener('close', () => (status = 'closed'))
     ws.addEventListener('error', () => {
       status = 'error'
@@ -100,6 +105,21 @@
       }
     }
   })
+
+  async function setCell(x: number, y: number, value: string | null) {
+    try {
+      const res = await fetch('/api/grid/cell', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ x, y, value: value ?? '' }),
+      })
+      if (!res.ok) throw new Error('Failed to set cell')
+    } catch (error) {
+      console.error(error)
+    }
+  }
 </script>
 
 <div>
@@ -118,9 +138,16 @@
         <tr>
           {#each row as cell, x}
             <td title={`(${x},${y}) ${cell}`}>
-              {#if emojis[cell]}
-                <img src={emojis[cell]} alt={cell} width="24" height="24" />
-              {/if}
+              <button
+                onclick={() => {
+                  if (selectedEmoji === undefined) return // not wired up to selector
+                  setCell(x, y, selectedEmoji)
+                }}
+              >
+                {#if cell && emojis[cell]}
+                  <img src={emojis[cell]} alt={cell} width="24" height="24" />
+                {/if}
+              </button>
             </td>
           {/each}
         </tr>
@@ -139,6 +166,15 @@
     border: 1px solid #ccc;
     padding: 0;
     overflow: hidden;
+  }
+  button {
+    display: block;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
   }
   img {
     display: block;
