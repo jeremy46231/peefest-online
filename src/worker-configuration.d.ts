@@ -323,7 +323,7 @@ declare function addEventListener<Type extends keyof WorkerGlobalScopeEventMap>(
   options?: EventTargetAddEventListenerOptions | boolean
 ): void
 declare function removeEventListener<
-  Type extends keyof WorkerGlobalScopeEventMap,
+  Type extends keyof WorkerGlobalScopeEventMap
 >(
   type: Type,
   handler: EventListenerOrEventListenerObject<WorkerGlobalScopeEventMap[Type]>,
@@ -452,7 +452,7 @@ type ExportedHandlerTestHandler<Env = unknown> = (
 interface ExportedHandler<
   Env = unknown,
   QueueHandlerMessage = unknown,
-  CfHostMetadata = unknown,
+  CfHostMetadata = unknown
 > {
   fetch?: ExportedHandlerFetchHandler<Env, CfHostMetadata>
   tail?: ExportedHandlerTailHandler<Env>
@@ -525,7 +525,7 @@ interface DurableObject {
   webSocketError?(ws: WebSocket, error: unknown): void | Promise<void>
 }
 type DurableObjectStub<
-  T extends Rpc.DurableObjectBranded | undefined = undefined,
+  T extends Rpc.DurableObjectBranded | undefined = undefined
 > = Fetcher<
   T,
   'alarm' | 'webSocketMessage' | 'webSocketClose' | 'webSocketError'
@@ -539,7 +539,7 @@ interface DurableObjectId {
   readonly name?: string
 }
 interface DurableObjectNamespace<
-  T extends Rpc.DurableObjectBranded | undefined = undefined,
+  T extends Rpc.DurableObjectBranded | undefined = undefined
 > {
   newUniqueId(
     options?: DurableObjectNamespaceNewUniqueIdOptions
@@ -831,7 +831,7 @@ type EventListenerOrEventListenerObject<EventType extends Event = Event> =
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/EventTarget)
  */
 declare class EventTarget<
-  EventMap extends Record<string, Event> = Record<string, Event>,
+  EventMap extends Record<string, Event> = Record<string, Event>
 > {
   constructor()
   /**
@@ -1068,7 +1068,7 @@ declare abstract class Crypto {
       | Int32Array
       | Uint32Array
       | BigInt64Array
-      | BigUint64Array,
+      | BigUint64Array
   >(buffer: T): T
   /**
    * Available only in secure contexts.
@@ -1786,17 +1786,17 @@ type Service<
     | (new (...args: any[]) => Rpc.WorkerEntrypointBranded)
     | Rpc.WorkerEntrypointBranded
     | ExportedHandler<any, any, any>
-    | undefined = undefined,
+    | undefined = undefined
 > = T extends new (...args: any[]) => Rpc.WorkerEntrypointBranded
   ? Fetcher<InstanceType<T>>
   : T extends Rpc.WorkerEntrypointBranded
-    ? Fetcher<T>
-    : T extends Exclude<Rpc.EntrypointBranded, Rpc.WorkerEntrypointBranded>
-      ? never
-      : Fetcher<undefined>
+  ? Fetcher<T>
+  : T extends Exclude<Rpc.EntrypointBranded, Rpc.WorkerEntrypointBranded>
+  ? never
+  : Fetcher<undefined>
 type Fetcher<
   T extends Rpc.EntrypointBranded | undefined = undefined,
-  Reserved extends string = never,
+  Reserved extends string = never
 > = (T extends Rpc.EntrypointBranded
   ? Rpc.Provider<T, Reserved | 'fetch' | 'connect'>
   : unknown) & {
@@ -2958,7 +2958,7 @@ interface SqlStorage {
 declare abstract class SqlStorageStatement {}
 type SqlStorageValue = ArrayBuffer | string | number | null
 declare abstract class SqlStorageCursor<
-  T extends Record<string, SqlStorageValue>,
+  T extends Record<string, SqlStorageValue>
 > {
   next():
     | {
@@ -5963,7 +5963,7 @@ declare abstract class Ai<AiModelList extends AiModelListType = AiModels> {
   run<
     Name extends keyof AiModelList,
     Options extends AiOptions,
-    InputOptions extends AiModelList[Name]['inputs'],
+    InputOptions extends AiModelList[Name]['inputs']
   >(
     model: Name,
     inputs: InputOptions,
@@ -5974,10 +5974,10 @@ declare abstract class Ai<AiModelList extends AiModelListType = AiModels> {
     }
       ? Response
       : InputOptions extends {
-            stream: true
-          }
-        ? ReadableStream
-        : AiModelList[Name]['postProcessedOutputs']
+          stream: true
+        }
+      ? ReadableStream
+      : AiModelList[Name]['postProcessedOutputs']
   >
   models(params?: AiModelsSearchParams): Promise<AiModelsSearchObject[]>
   toMarkdown(
@@ -7601,7 +7601,7 @@ type EventContext<Env, P extends string, Data> = {
 type PagesFunction<
   Env = unknown,
   Params extends string = any,
-  Data extends Record<string, unknown> = Record<string, unknown>,
+  Data extends Record<string, unknown> = Record<string, unknown>
 > = (context: EventContext<Env, Params, Data>) => Response | Promise<Response>
 type EventPluginContext<Env, P extends string, Data, PluginArgs> = {
   request: Request<unknown, IncomingRequestCfProperties<unknown>>
@@ -7622,7 +7622,7 @@ type PagesPluginFunction<
   Env = unknown,
   Params extends string = any,
   Data extends Record<string, unknown> = Record<string, unknown>,
-  PluginArgs = unknown,
+  PluginArgs = unknown
 > = (
   context: EventPluginContext<Env, Params, Data, PluginArgs>
 ) => Response | Promise<Response>
@@ -7636,7 +7636,7 @@ declare module 'cloudflare:pipelines' {
   export abstract class PipelineTransformationEntrypoint<
     Env = unknown,
     I extends PipelineRecord = PipelineRecord,
-    O extends PipelineRecord = PipelineRecord,
+    O extends PipelineRecord = PipelineRecord
   > {
     protected env: Env
     protected ctx: ExecutionContext
@@ -7841,7 +7841,7 @@ declare namespace Rpc {
   // `Reserved` names (e.g. stub method names like `dup()`) and symbols can't be accessed over RPC.
   export type Provider<
     T extends object,
-    Reserved extends string = never,
+    Reserved extends string = never
   > = MaybeCallableProvider<T> & {
     [K in Exclude<
       keyof T,
@@ -7967,7 +7967,7 @@ declare module 'cloudflare:workers' {
   }
   export abstract class WorkflowEntrypoint<
     Env = unknown,
-    T extends Rpc.Serializable<T> | unknown = unknown,
+    T extends Rpc.Serializable<T> | unknown = unknown
   > implements Rpc.WorkflowEntrypointBranded
   {
     [Rpc.__WORKFLOW_ENTRYPOINT_BRAND]: never

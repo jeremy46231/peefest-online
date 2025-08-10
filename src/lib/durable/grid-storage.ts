@@ -25,7 +25,7 @@ export class GridStorage extends DurableObject<Env> {
     if (!Number.isInteger(x) || !Number.isInteger(y)) {
       throw new Error('Coordinates must be integers')
     }
-  if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) {
+    if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) {
       throw new Error(
         `Coordinate out of bounds: (${x},${y}) not within 0..${WIDTH - 1},0..${
           HEIGHT - 1
@@ -80,7 +80,7 @@ export class GridStorage extends DurableObject<Env> {
         typeof row.y === 'number' &&
         typeof row.value === 'string'
       ) {
-  if (row.x >= 0 && row.x < WIDTH && row.y >= 0 && row.y < HEIGHT) {
+        if (row.x >= 0 && row.x < WIDTH && row.y >= 0 && row.y < HEIGHT) {
           grid[row.y][row.x] = row.value
         }
       }
