@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Grid from '$lib/components/Grid.svelte'
+
   let { data } = $props()
   let filteredEmojis: [string, string][] = $state([])
   let selectedEmoji: [string, string] | null = $state(null)
@@ -53,6 +55,8 @@
     console.log('Selected emoji :' + selectedEmoji + ':')
   }
 </script>
+
+<Grid />
 
 <p>choose an emoji!</p>
 
