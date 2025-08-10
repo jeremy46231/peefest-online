@@ -7,7 +7,6 @@
     selectedEmoji,
   }: { emojis: Record<string, string>; selectedEmoji: string | null } = $props()
 
-  // Svelte 5 runes API ($state, $effect)
   let grid = $state<string[][]>(
     Array.from({ length: HEIGHT }, () =>
       Array.from({ length: WIDTH }, () => '')
@@ -19,6 +18,8 @@
   let lastEvent = $state<string>('')
   let errorMessage = $state<string | null>(null)
   let ws: WebSocket | null = null
+  let isDrawing = $state(false)
+  let activePointer: number | null = null
 
   async function fetchInitial() {
     try {
@@ -93,6 +94,38 @@
     })
   }
 
+  function startDraw(x: number, y: number) {
+    if (selectedEmoji === undefined) return
+    isDrawing = true
+    // Only update if changed to reduce requests
+    if (grid[y][x] !== (selectedEmoji ?? '')) {
+      setCell(x, y, selectedEmoji)
+    }
+  }
+
+  function continueDraw(x: number, y: number) {
+    if (!isDrawing) return
+    if (selectedEmoji === undefined) return
+    if (grid[y][x] !== (selectedEmoji ?? '')) {
+      setCell(x, y, selectedEmoji)
+    }
+  }
+
+  $effect(() => {
+    function endPointer() {
+      isDrawing = false
+      activePointer = null
+    }
+    window.addEventListener('pointerup', endPointer, { passive: true })
+    window.addEventListener('pointercancel', endPointer, { passive: true })
+    window.addEventListener('blur', endPointer)
+    return () => {
+      window.removeEventListener('pointerup', endPointer)
+      window.removeEventListener('pointercancel', endPointer)
+      window.removeEventListener('blur', endPointer)
+    }
+  })
+
   $effect(() => {
     fetchInitial()
     connect()
@@ -122,15 +155,18 @@
 </script>
 
 <div>
-  <small
-    >Status: <span class={status}>{status}</span>{#if errorMessage}
-      • {errorMessage}{/if}</small
-  >
+  <small>
+    Status: <span class={status}>{status}</span>
+    {#if errorMessage}
+      {' • '} {errorMessage}
+    {/if}
+  </small>
   <table
     aria-label="Live grid"
     aria-rowcount={HEIGHT}
     aria-colcount={WIDTH}
     aria-live="polite"
+    oncontextmenu={(e) => e.preventDefault()}
   >
     <tbody>
       {#each grid as row, y}
@@ -138,10 +174,27 @@
           {#each row as cell, x}
             <td title={`(${x},${y}) ${cell}`}>
               <button
-                onclick={() => {
-                  if (selectedEmoji === undefined) return // not wired up to selector
-                  setCell(x, y, selectedEmoji)
+                onpointerdown={(e) => {
+                  e.preventDefault()
+                  if (activePointer !== null && activePointer !== e.pointerId)
+                    return
+                  activePointer = e.pointerId
+                  startDraw(x, y)
                 }}
+                onpointerenter={(e) => {
+                  // Only draw while primary pointer active
+                  if (activePointer !== null && e.pointerId === activePointer) {
+                    continueDraw(x, y)
+                  }
+                }}
+                onclick={(e) => {
+                  // Prevent accidental double triggering, treat tap as single cell
+                  e.preventDefault()
+                  if (!isDrawing) startDraw(x, y)
+                  isDrawing = false
+                  activePointer = null
+                }}
+                ondragstart={(e) => e.preventDefault()}
               >
                 {#if cell && emojis[cell]}
                   <img src={emojis[cell]} alt={cell} width="24" height="24" />
@@ -174,6 +227,9 @@
     border: none;
     background: none;
     cursor: pointer;
+    touch-action: none; /* prevent panning / zoom while drawing */
+    -webkit-user-select: none;
+    user-select: none;
   }
   img {
     display: block;

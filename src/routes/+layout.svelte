@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>My SvelteKit App</title>
+  <title>PeeFest Online</title>
 </svelte:head>
 
 {@render children?.()}
