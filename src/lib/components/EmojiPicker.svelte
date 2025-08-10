@@ -1,8 +1,8 @@
 <script lang="ts">
-  let emojis: Record<string, string> = $props();
+
+  let { emojis, selectedEmoji = $bindable(null) }: { emojis: Record<string, string>, selectedEmoji?: string | null } = $props()
 
   let filteredEmojis: Array<[string, string]> = $state([])
-  let selectedEmoji: string | null = $state(null)
 
   // Debounce utility
   function debounce(fn: Function, delay: number) {
@@ -40,15 +40,6 @@
       )
       .slice(0, 20) // Limit to top 20 results
   }, 200)
-
-  /**
-   * @param {Event} event
-   */
-  function emojiSelected(event: Event) {
-    // @ts-ignore
-    ;(selectedEmoji = event.target.alt ?? event.target.textContent.trim()),
-      console.log('Selected emoji :' + selectedEmoji + ':')
-  }
 </script>
 
 <p>choose an emoji!</p>
@@ -67,7 +58,9 @@
   <ul>
     {#each filteredEmojis as [name, url]}
       <li>
-        <button onclick={emojiSelected}>
+        <button onclick={() => {
+          selectedEmoji = name
+        }}>
           {name}
           <img src={url} alt={name} width="24" height="24" />
         </button>
@@ -77,9 +70,9 @@
 {:else}
   <p>
     Selected emoji <span style="font-family: monospace"
-      >:{selectedEmoji[0]}:</span
+      >:{selectedEmoji}:</span
     >
-    <img src={selectedEmoji[1]} alt={selectedEmoji[0]} width="24" height="24" />
+    <img src={emojis[selectedEmoji]} alt={selectedEmoji} width="24" height="24" />
   </p>
 {/if}
 
