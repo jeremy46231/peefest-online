@@ -187,17 +187,35 @@
   })
 
   async function setCell(x: number, y: number, value: string | null) {
+    const val = value ?? ''
+    // Optimistic update locally (will be overwritten by broadcast if races)
+    if (grid[y][x] !== val) {
+      const next = grid.map((r) => r.slice())
+      next[y][x] = val
+      grid = next
+    }
+    // Prefer websocket if open
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      try {
+        ws.send(JSON.stringify({ type: 'set', x, y, value: val }))
+        return
+      } catch {
+        // fall through to REST
+      }
+    }
+    // Fallback REST call (keep route for backwards compatibility / first paint)
     try {
       const res = await fetch('/api/grid/cell', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ x, y, value: value ?? '' }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ x, y, value: val }),
       })
-      if (!res.ok) throw new Error('Failed to set cell')
+      if (!res.ok) throw new Error('Failed to set cell (fallback)')
     } catch (error) {
       console.error(error)
+      // Optionally mark error status
+      status = 'error'
+      errorMessage = 'Failed to send update'
     }
   }
 </script>
