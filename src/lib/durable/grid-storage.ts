@@ -1,8 +1,7 @@
 import { DurableObject } from 'cloudflare:workers'
-import { PUBLIC_WIDTH, PUBLIC_HEIGHT } from '$env/static/public'
 
-const WIDTH = PUBLIC_WIDTH ? parseInt(PUBLIC_WIDTH) : 20
-const HEIGHT = PUBLIC_HEIGHT ? parseInt(PUBLIC_HEIGHT) : 20
+const WIDTH = 20
+const HEIGHT = 20
 
 export class GridStorage extends DurableObject<Env> {
   #initialized = false
