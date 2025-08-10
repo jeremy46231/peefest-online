@@ -10,25 +10,25 @@
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "binding": "ASSETS",
-    "directory": ".svelte-kit/cloudflare"
+    "directory": ".svelte-kit/cloudflare",
   },
   "observability": {
-    "enabled": true
+    "enabled": true,
   },
   "durable_objects": {
     "bindings": [
       {
         "name": "GRID_STORAGE",
-        "class_name": "GridStorage"
-      }
-    ]
+        "class_name": "GridStorage",
+      },
+    ],
   },
   "migrations": [
     {
       "tag": "v1-gridstorage-sqlite",
-      "new_sqlite_classes": ["GridStorage"]
-    }
-  ]
+      "new_sqlite_classes": ["GridStorage"],
+    },
+  ],
   /**
    * Smart Placement
    * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

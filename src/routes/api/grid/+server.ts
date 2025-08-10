@@ -5,13 +5,14 @@ export const GET: RequestHandler = async ({ url, platform }) => {
   if (!platform) {
     throw new Error('Platform not available')
   }
-  const GRID_STORAGE = platform.env.GRID_STORAGE as unknown as DurableObjectNamespace<GridStorage>
+  const GRID_STORAGE = platform.env
+    .GRID_STORAGE as unknown as DurableObjectNamespace<GridStorage>
   const id = GRID_STORAGE.idFromName('global')
   const stub = GRID_STORAGE.get(id)
 
-  const greeting = await stub.sayHello()
+  const grid = await stub.getGrid()
 
-  return new Response(JSON.stringify({ greeting }), {
-    headers: { 'Content-Type': 'application/json' }
+  return new Response(JSON.stringify({ grid }), {
+    headers: { 'Content-Type': 'application/json' },
   })
 }
