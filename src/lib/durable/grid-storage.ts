@@ -1,8 +1,8 @@
 import { DurableObject } from 'cloudflare:workers'
+import { PUBLIC_WIDTH, PUBLIC_HEIGHT } from '$env/static/public'
 
-// Fixed grid dimensions (can be made dynamic later if needed)
-const width = 20
-const height = 20
+const WIDTH = PUBLIC_WIDTH ? parseInt(PUBLIC_WIDTH) : 20
+const HEIGHT = PUBLIC_HEIGHT ? parseInt(PUBLIC_HEIGHT) : 20
 
 export class GridStorage extends DurableObject<Env> {
   #initialized = false
@@ -26,9 +26,11 @@ export class GridStorage extends DurableObject<Env> {
     if (!Number.isInteger(x) || !Number.isInteger(y)) {
       throw new Error('Coordinates must be integers')
     }
-    if (x < 0 || x >= width || y < 0 || y >= height) {
+  if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) {
       throw new Error(
-        `Coordinate out of bounds: (${x},${y}) not within 0..${width - 1},0..${height - 1}`
+        `Coordinate out of bounds: (${x},${y}) not within 0..${WIDTH - 1},0..${
+          HEIGHT - 1
+        }`
       )
     }
   }
@@ -63,8 +65,8 @@ export class GridStorage extends DurableObject<Env> {
   async getGrid(): Promise<string[][]> {
     this.#ensureSchema()
     // Initialize with empty strings to keep shape stable.
-    const grid: string[][] = Array.from({ length: height }, () =>
-      Array.from({ length: width }, () => '')
+    const grid: string[][] = Array.from({ length: HEIGHT }, () =>
+      Array.from({ length: WIDTH }, () => '')
     )
     const cursor = this.ctx.storage.sql.exec('SELECT x, y, value FROM grid')
     // .exec() returns a cursor we can iterate with .next() until done.
@@ -79,7 +81,7 @@ export class GridStorage extends DurableObject<Env> {
         typeof row.y === 'number' &&
         typeof row.value === 'string'
       ) {
-        if (row.x >= 0 && row.x < width && row.y >= 0 && row.y < height) {
+  if (row.x >= 0 && row.x < WIDTH && row.y >= 0 && row.y < HEIGHT) {
           grid[row.y][row.x] = row.value
         }
       }
