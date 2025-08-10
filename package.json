@@ -23,6 +23,8 @@
   },
   "dependencies": {
     "@slack/bolt": "^4.4.0",
-    "bolt": "^0.24.10"
+    "bolt": "^0.24.10",
+    "jazz-tools": "^0.16.5",
+    "zod": "^4.0.17"
   }
 }
