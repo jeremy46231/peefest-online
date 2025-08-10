@@ -2,4 +2,4 @@
 
 [PeeFest-Online.jer.app](https://PeeFest-Online.jer.app)
 
-r/place, but with slack emojis <img src="https://cachet.dunkirk.sh/emojis/yay/pf" width="16">
+r/place, but with slack emojis <img src="https://cachet.dunkirk.sh/emojis/pf/r" width="16">
