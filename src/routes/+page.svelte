@@ -56,7 +56,7 @@
   }
 </script>
 
-<Grid />
+<Grid emojis={data.emojis!} />
 
 <p>choose an emoji!</p>
 
