@@ -12,14 +12,19 @@
       Array.from({ length: WIDTH }, () => '')
     )
   )
-  let status = $state<'connecting' | 'connected' | 'closed' | 'error'>(
-    'connecting'
-  )
+  let status = $state<
+    'connecting' | 'connected' | 'closed' | 'error' | 'reconnecting'
+  >('connecting')
   let lastEvent = $state<string>('')
   let errorMessage = $state<string | null>(null)
   let ws: WebSocket | null = null
   let isDrawing = $state(false)
   let activePointer: number | null = null
+  let reconnectAttempts = 0
+  let reconnectTimer: number | null = null
+  let destroyed = false
+  const MAX_BACKOFF = 5000 // ms
+  const BASE_BACKOFF = 500 // ms
 
   async function fetchInitial() {
     try {
@@ -47,17 +52,47 @@
     grid = next
   }
 
-  function connect() {
-    status = 'connecting'
+  function connect(isRetry = false) {
+    if (destroyed) return
+    if (
+      ws &&
+      (ws.readyState === WebSocket.OPEN ||
+        ws.readyState === WebSocket.CONNECTING)
+    ) {
+      return
+    }
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer)
+      reconnectTimer = null
+    }
+    status = isRetry ? 'reconnecting' : 'connecting'
     errorMessage = null
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:'
     const url = `${proto}//${location.host}/api/grid/ws`
-    ws = new WebSocket(url)
-    ws.addEventListener('open', () => (status = 'connected'))
-    ws.addEventListener('close', () => (status = 'closed'))
+    try {
+      ws = new WebSocket(url)
+    } catch (e) {
+      scheduleReconnect()
+      return
+    }
+    ws.addEventListener('open', () => {
+      status = 'connected'
+      reconnectAttempts = 0
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer)
+        reconnectTimer = null
+      }
+    })
+    ws.addEventListener('close', () => {
+      if (destroyed) return
+      status = 'closed'
+      scheduleReconnect()
+    })
     ws.addEventListener('error', () => {
+      if (destroyed) return
       status = 'error'
       errorMessage = 'WebSocket error'
+      scheduleReconnect()
     })
     ws.addEventListener('message', (ev) => {
       lastEvent = ev.data
@@ -92,6 +127,17 @@
         /* ignore */
       }
     })
+  }
+
+  function scheduleReconnect() {
+    if (destroyed) return
+    reconnectAttempts += 1
+    const delay = Math.min(
+      MAX_BACKOFF,
+      Math.round(BASE_BACKOFF * Math.pow(2, reconnectAttempts - 1))
+    )
+    if (reconnectTimer) clearTimeout(reconnectTimer)
+    reconnectTimer = window.setTimeout(() => connect(true), delay)
   }
 
   function startDraw(x: number, y: number) {
@@ -135,6 +181,8 @@
       } catch {
         /* ignore */
       }
+      destroyed = true
+      if (reconnectTimer) clearTimeout(reconnectTimer)
     }
   })
 
@@ -241,6 +289,10 @@
   }
   .connecting {
     color: #c60;
+  }
+  .reconnecting {
+    color: #c60;
+    font-style: italic;
   }
   .closed {
     color: #666;
