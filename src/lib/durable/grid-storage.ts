@@ -117,6 +117,54 @@ export class GridStorage extends DurableObject<Env> {
     return new Response(null, { status: 101, webSocket: client })
   }
 
+  /** Handle inbound websocket messages from clients (mutation requests). */
+  // Cloudflare Durable Object websocket event handler naming convention.
+  async webSocketMessage(ws: WebSocket, message: string | ArrayBuffer) {
+    // Only handle text frames.
+    if (typeof message !== 'string') return
+    let data: unknown
+    try {
+      data = JSON.parse(message)
+    } catch {
+      return
+    }
+    if (typeof data !== 'object' || data === null) return
+    const msg = data as { type?: unknown; x?: unknown; y?: unknown; value?: unknown }
+    if (msg.type === 'set') {
+      if (
+        typeof msg.x === 'number' &&
+        typeof msg.y === 'number' &&
+        typeof msg.value === 'string'
+      ) {
+        try {
+          await this.setCell(msg.x, msg.y, msg.value)
+        } catch (err) {
+          try {
+            ws.send(
+              JSON.stringify({
+                type: 'error',
+                error: (err as Error).message ?? 'Failed to set cell',
+              })
+            )
+          } catch {
+            /* ignore */
+          }
+        }
+      } else {
+        try {
+          ws.send(
+            JSON.stringify({
+              type: 'error',
+              error: 'Invalid set message; expected {type:"set", x:number, y:number, value:string}',
+            })
+          )
+        } catch {
+          /* ignore */
+        }
+      }
+    }
+  }
+
   /** Broadcast a JSON serializable payload to all connected websockets */
   async #broadcast(payload: Record<string, unknown>) {
     let sockets: WebSocket[] = []
