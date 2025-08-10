@@ -1,6 +1,6 @@
 import Slack from '@slack/web-api'
-import { SLACK_BOT_TOKEN } from '$env/static/private'
+import { env } from '$env/dynamic/private'
 
-const client = new Slack.WebClient(SLACK_BOT_TOKEN)
+const client = new Slack.WebClient(env.SLACK_BOT_TOKEN)
 
 export default client
