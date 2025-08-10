@@ -117,18 +117,7 @@
   .emoji-button,
   .emoji-button img {
     vertical-align: middle;
-  }
-
-  button:not(.emoji-button) {
-    background-color: white;
-    border: 2px solid lightgray;
-    border-radius: 5%;
-  }
-
-  button:not(.emoji-button):hover {
-    background-color: lightgray;
-    transition-duration: 50ms;
-  }
+  } 
 
   p:has(img),
   p:has(img) img {
