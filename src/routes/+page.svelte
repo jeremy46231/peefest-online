@@ -6,8 +6,8 @@
   const emojis = data.emojis
   if (!emojis) throw new Error('emoji list is null')
 
-  const selectedEmoji = $state<string | null>(null);
+  let selectedEmoji = $state<string | null>(null)
 </script>
 
 <Grid {emojis} {selectedEmoji} />
-<EmojiPicker {emojis} {selectedEmoji} />
+<EmojiPicker {emojis} bind:selectedEmoji />
