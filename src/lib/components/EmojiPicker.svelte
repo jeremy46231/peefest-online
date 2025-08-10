@@ -1,6 +1,9 @@
 <script lang="ts">
-
-  let { emojis, selectedEmoji = $bindable(null) }: { emojis: Record<string, string>, selectedEmoji?: string | null } = $props()
+  let {
+    emojis,
+    selectedEmoji = $bindable(null),
+  }: { emojis: Record<string, string>; selectedEmoji?: string | null } =
+    $props()
 
   let filteredEmojis: Array<[string, string]> = $state([])
 
@@ -49,18 +52,29 @@
   type="text"
   name="emoji-picker"
   id="emoji-picker"
-  placeholder="pf"
+  placeholder="peefest"
   oninput={selectEmoji}
 />
 <label for="emoji-picker">:</label>
+<button
+  onclick={() => {
+    selectedEmoji = null
+    ;(document.getElementById('emoji-picker') as HTMLInputElement).value = ''
+    filteredEmojis = []
+  }}
+  title="Clear selected emoji">❌</button
+>
 
 {#if !selectedEmoji}
   <ul>
     {#each filteredEmojis as [name, url]}
       <li>
-        <button onclick={() => {
-          selectedEmoji = name
-        }}>
+        <button
+          onclick={() => {
+            selectedEmoji = name
+          }}
+          class="emoji-button"
+        >
           {name}
           <img src={url} alt={name} width="24" height="24" />
         </button>
@@ -69,25 +83,22 @@
   </ul>
 {:else}
   <p>
-    Selected emoji <span style="font-family: monospace"
-      >:{selectedEmoji}:</span
-    >
-    <img src={emojis[selectedEmoji]} alt={selectedEmoji} width="24" height="24" />
+    Selected emoji <span style="font-family: monospace">:{selectedEmoji}:</span>
+    <img
+      src={emojis[selectedEmoji]}
+      alt={selectedEmoji}
+      width="24"
+      height="24"
+    />
   </p>
 {/if}
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
-
-  :global(body) {
-    font-family: 'Lato', sans-serif;
-  }
-
   li {
     padding: 4px;
   }
 
-  button {
+  .emoji-button {
     padding: 0;
     border: none;
     background: none;
@@ -95,7 +106,7 @@
     font-family: monospace;
   }
 
-  button:hover {
+  .emoji-button:hover {
     transition-duration: 75ms;
     background-color: lightgrey;
     padding: 5px;
@@ -103,9 +114,20 @@
     border-radius: 5%;
   }
 
-  button,
-  button img {
+  .emoji-button,
+  .emoji-button img {
     vertical-align: middle;
+  }
+
+  button:not(.emoji-button) {
+    background-color: white;
+    border: 2px solid lightgray;
+    border-radius: 5%;
+  }
+
+  button:not(.emoji-button):hover {
+    background-color: lightgray;
+    transition-duration: 50ms;
   }
 
   p:has(img),
