@@ -6,7 +6,7 @@
   const {
     emojis,
     selectedEmoji,
-  }: { emojis: Record<string, string>; selectedEmoji?: string | null } = $props()
+  }: { emojis: Record<string, string>; selectedEmoji: string | null } = $props()
 
   // Svelte 5 runes API ($state, $effect)
   let grid = $state<string[][]>(
