@@ -11,7 +11,7 @@
       Array.from({ length: WIDTH }, () => '')
     )
   )
-  let status = $state<'connecting' | 'open' | 'closed' | 'error'>('connecting')
+  let status = $state<'connecting' | 'connected' | 'closed' | 'error'>('connecting')
   let lastEvent = $state<string>('')
   let errorMessage = $state<string | null>(null)
   let ws: WebSocket | null = null
@@ -48,7 +48,7 @@
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:'
     const url = `${proto}//${location.host}/api/grid/ws`
     ws = new WebSocket(url)
-    ws.addEventListener('open', () => (status = 'open'))
+  ws.addEventListener('open', () => (status = 'connected'))
     ws.addEventListener('close', () => (status = 'closed'))
     ws.addEventListener('error', () => {
       status = 'error'
@@ -145,7 +145,7 @@
     width: 24px;
     height: 24px;
   }
-  .open {
+  .connected {
     color: #080;
   }
   .connecting {
