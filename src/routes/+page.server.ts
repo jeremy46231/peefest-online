@@ -49,9 +49,9 @@ export async function load() {
   const response = await client.emoji.list()
   // Defensive: check for errors and structure
   const rawEmojis = response && response.ok ? response.emoji : {}
-  
+
   // Resolve emoji aliases to actual URLs
   const emojis = resolveEmojiAliases(rawEmojis || {})
-  
+
   return { emojis }
 }
