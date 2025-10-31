@@ -8,6 +8,7 @@ import client from '$lib/server/slack'
 function resolveEmojiAliases(
   emojis: Record<string, string>
 ): Record<string, string> {
+  const ALIAS_PREFIX = 'alias:'
   const resolved: Record<string, string> = {}
   const visited = new Set<string>()
 
@@ -24,8 +25,8 @@ function resolveEmojiAliases(
     }
 
     // If it's an alias, resolve it
-    if (value.startsWith('alias:')) {
-      const aliasTarget = value.substring(6) // Remove "alias:" prefix
+    if (value.startsWith(ALIAS_PREFIX)) {
+      const aliasTarget = value.substring(ALIAS_PREFIX.length)
       return resolve(aliasTarget)
     }
 
