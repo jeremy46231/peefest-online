@@ -3,40 +3,42 @@ import client from '$lib/server/slack'
 /**
  * Resolves emoji aliases to their actual image URLs.
  * Slack returns aliases in the format "alias:<emoji-name>".
- * This function recursively resolves these aliases to actual URLs.
+ * This function iteratively resolves these aliases to actual URLs.
  */
 function resolveEmojiAliases(
   emojis: Record<string, string>
 ): Record<string, string> {
-  const ALIAS_PREFIX = 'alias:'
   const resolved: Record<string, string> = {}
-  const visited = new Set<string>()
 
   function resolve(name: string): string | null {
-    // Prevent infinite loops
-    if (visited.has(name)) {
-      return null
-    }
-    visited.add(name)
+    const visited = new Set<string>()
+    let current = name
 
-    const value = emojis[name]
-    if (!value) {
-      return null
-    }
+    while (true) {
+      // Prevent infinite loops
+      if (visited.has(current)) {
+        return null
+      }
+      visited.add(current)
 
-    // If it's an alias, resolve it
-    if (value.startsWith(ALIAS_PREFIX)) {
-      const aliasTarget = value.substring(ALIAS_PREFIX.length)
-      return resolve(aliasTarget)
-    }
+      const value = emojis[current]
+      if (!value) {
+        return null
+      }
 
-    // It's a URL, return it
-    return value
+      // If it's an alias, continue following the chain
+      if (value.startsWith('alias:')) {
+        current = value.substring(6) // Remove "alias:" prefix
+        continue
+      }
+
+      // It's a URL, return it
+      return value
+    }
   }
 
   // Resolve all emojis
-  for (const [name, value] of Object.entries(emojis)) {
-    visited.clear() // Reset visited set for each emoji
+  for (const [name] of Object.entries(emojis)) {
     const resolvedUrl = resolve(name)
     if (resolvedUrl) {
       resolved[name] = resolvedUrl
