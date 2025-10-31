@@ -38,7 +38,7 @@ function resolveEmojiAliases(
   }
 
   // Resolve all emojis
-  for (const [name] of Object.entries(emojis)) {
+  for (const name of Object.keys(emojis)) {
     const resolvedUrl = resolve(name)
     if (resolvedUrl) {
       resolved[name] = resolvedUrl
